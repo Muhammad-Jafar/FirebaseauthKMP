@@ -14,13 +14,13 @@ import org.jetbrains.skiko.wasm.onWasmReady
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
 
-    /*Firebase.initialize(
+    Firebase.initialize(
         options = FirebaseOptions(
             applicationId = "1:942900341061:web:1a8f712fcd44af2895762c",
             apiKey = "AIzaSyC3wTK8oVyLWAnRHXOKbgvtwppFNk1HAtQ",
             projectId = "kmp-fba"
         )
-    )*/
+    )
 
     onWasmReady {
         CanvasBasedWindow(canvasElementId = "composeTarget") {

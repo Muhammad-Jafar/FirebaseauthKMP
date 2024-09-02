@@ -5,7 +5,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
-import dev.gitlive.firebase.auth.FirebaseUser
 import firebase.AuthServiceImpl
 import firebase.User
 import kotlinx.coroutines.launch
@@ -27,22 +26,14 @@ fun LoginScreen(
     CardWrapper {
         Text("Welcome folks :)")
         SignInWithGoogle(
-            doLogin = { user ->
-                val result = User(
-                    firebaseId = user.uid,
-                    displayName = user.displayName ?: "Null",
-                    email = user.email ?: "Null",
-                    profilePicUrl = user.photoURL ?: "Null"
-                )
-                updateResultState(result)
-            }
+            doLogin = { updateResultState(it) }
         )
     }
 }
 
 @Composable
 private fun SignInWithGoogle(
-    doLogin: (FirebaseUser) -> Unit = {},
+    doLogin: (User) -> Unit = {},
 ) {
     val scope = rememberCoroutineScope()
     val updateUserState by rememberUpdatedState(doLogin)
@@ -50,8 +41,9 @@ private fun SignInWithGoogle(
     SignInButton(
         onClick = {
             scope.launch {
-                val user = AuthServiceImpl().signInGoogle()
-                updateUserState(user)
+                AuthServiceImpl().signInGoogle()
+                    .onSuccess { updateUserState(it) }
+                    .onFailure { throw it }
             }
         }
     )

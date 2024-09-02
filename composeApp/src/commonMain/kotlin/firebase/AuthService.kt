@@ -2,12 +2,8 @@ package firebase
 
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseAuth
-import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.GoogleAuthProvider
 import dev.gitlive.firebase.auth.auth
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 
 /**
  * Created by: Muhammad Jafar
@@ -16,24 +12,28 @@ import kotlinx.coroutines.SupervisorJob
  */
 
 interface AuthService {
-    suspend fun signInGoogle(): FirebaseUser
+    suspend fun signInGoogle(): Result<User>
     suspend fun signOut()
 }
 
 class AuthServiceImpl(
-    private val auth: FirebaseAuth = Firebase.auth
+    private val auth: FirebaseAuth = Firebase.auth,
 ) : AuthService {
-    override suspend fun signInGoogle(): FirebaseUser =
+    override suspend fun signInGoogle(): Result<User> =
         runCatching {
-            /*val gCredential = AuthCredentials("942900341061-io6md9l77jf1eqi7aaqrkuovaodbshuj.apps.googleusercontent.com")*/
-            val credential = GoogleAuthProvider.credential(idToken = "", accessToken = null)
+            val credential = ""
+            val googleIdToken = ""
+            val googleCredential = GoogleAuthProvider.credential(googleIdToken, null)
+            val user = auth.signInWithCredential(googleCredential)
+                .user ?: throw Exception("Null user")
 
-            auth.signInWithCredential(credential).user
-                ?: throw Exception("Null user")
-        }.fold(
-            onSuccess = { it },
-            onFailure = { throw it }
-        )
+            User(
+                firebaseId = user.uid,
+                email = user.email,
+                displayName = user.displayName,
+                profilePicUrl = user.photoURL,
+            )
+        }
 
     override suspend fun signOut() = auth.signOut()
 }
